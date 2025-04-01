@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virus Infiltration Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        #progressIndicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 250px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #ff00ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .progress-title {
+            color: #ff00ff;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+            text-shadow: 0 0 5px #ff00ff;
+            letter-spacing: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .progress-level {
+            display: flex;
+            align-items: center;
+        }
+
+        .level-name {
+            width: 110px;
+            font-size: 12px;
+            color: #00ffff;
+            text-shadow: 0 0 3px #00ffff;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 12px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #00ffff, #ff00ff);
+            transition: width 0.3s ease;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .progress-percentage {
+            text-align: right;
+            font-size: 14px;
+            color: #00ffff;
+            margin-top: 5px;
+            text-shadow: 0 0 3px #00ffff;
+        }
+
+        /* Activestate for current level bar */
+        .progress-bar.active {
+            border: 1px solid #ff00ff;
+            box-shadow: 0 0 5px rgba(255, 0, 255, 0.7);
+        }
+
+        /* Completed level style */
+        .progress-bar.completed .bar-fill {
+            width: 100%;
+            background: linear-gradient(to right, #00ff00, #00ffaa);
+        }
+
+        /* Animation for active bar */
+        @keyframes pulse-border {
+            0% { border-color: rgba(255, 0, 255, 0.3); }
+            50% { border-color: rgba(255, 0, 255, 1); }
+            100% { border-color: rgba(255, 0, 255, 0.3); }
+        }
+
+        .progress-bar.active {
+            animation: pulse-border 2s infinite;
+        }
+
+        .pirate-icon {
+            filter: drop-shadow(0 0 3px #00ffff);
+            animation: skull-vibrate 1.5s infinite;
+            width: 20px;
+            height: 20px;
+            margin: 0 4px;
+        }
+
+        @keyframes skull-vibrate {
+            0%, 100% {
+                transform: translateX(0) rotate(0deg);
+                filter: drop-shadow(0 0 3px #00ffff);
+            }
+            25% {
+                transform: translateX(-1px) rotate(-2deg);
+                filter: drop-shadow(0 0 4px #ff00ff);
+            }
+            50% {
+                transform: translateY(1px);
+                filter: drop-shadow(0 0 4px #00ffff);
+            }
+            75% {
+                transform: translateX(1px) rotate(2deg);
+                filter: drop-shadow(0 0 3px #ff00ff);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="info"></div>
+    <div id="instructions">
+        Keys 1-4: Select pathway | Left/Right: Move virus | M: Toggle Camera Map/Pause
+    </div>
+
+    <div id="progressIndicator">
+        <div class="progress-title">
+            <svg class="pirate-icon" width="24" height="24" viewBox="0 0 24 24">
+                <!-- Dødningehoved -->
+                <path fill="#ff00ff" d="M12,2 C7,2 4,6 4,10 C4,12 5,14 6,15 L6,18 C6,19 7,19.5 8,19.8 L9,22 L15,22 L16,19.8 C17,19.5 18,19 18,18 L18,15 C19,14 20,12 20,10 C20,6 17,2 12,2 Z" opacity="0.6" />
+                <!-- Øjne -->
+                <circle fill="#00ffff" cx="9" cy="11" r="1.5" />
+                <circle fill="#00ffff" cx="15" cy="11" r="1.5" />
+                <!-- Mund -->
+                <path fill="none" stroke="#00ffff" stroke-width="1" d="M9,15 L10,16 L12,15 L14,16 L15,15" />
+                <!-- Korslagte knogler -->
+                <path fill="none" stroke="#00ffff" stroke-width="1" d="M7,20 L17,20 M12,17 L12,21" />
+            </svg>
+            SYSTEM BREACH
+            <svg class="pirate-icon" width="24" height="24" viewBox="0 0 24 24">
+                <!-- Dødningehoved -->
+                <path fill="#ff00ff" d="M12,2 C7,2 4,6 4,10 C4,12 5,14 6,15 L6,18 C6,19 7,19.5 8,19.8 L9,22 L15,22 L16,19.8 C17,19.5 18,19 18,18 L18,15 C19,14 20,12 20,10 C20,6 17,2 12,2 Z" opacity="0.6" />
+                <!-- Øjne -->
+                <circle fill="#00ffff" cx="9" cy="11" r="1.5" />
+                <circle fill="#00ffff" cx="15" cy="11" r="1.5" />
+                <!-- Mund -->
+                <path fill="none" stroke="#00ffff" stroke-width="1" d="M9,15 L10,16 L12,15 L14,16 L15,15" />
+                <!-- Korslagte knogler -->
+                <path fill="none" stroke="#00ffff" stroke-width="1" d="M7,20 L17,20 M12,17 L12,21" />
+            </svg>
+        </div>
+        <div class="progress-container">
+            <div class="progress-level">
+                <div class="level-name">INFILTRATION</div>
+                <div class="progress-bar">
+                    <div class="bar-fill" id="level1-bar"></div>
+                </div>
+            </div>
+            <div class="progress-level">
+                <div class="level-name">PROPAGATION</div>
+                <div class="progress-bar">
+                    <div class="bar-fill" id="level2-bar"></div>
+                </div>
+            </div>
+            <div class="progress-level">
+                <div class="level-name">ACTIVATION</div>
+                <div class="progress-bar">
+                    <div class="bar-fill" id="level3-bar"></div>
+                </div>
+            </div>
+            <div class="progress-level">
+                <div class="level-name">PERSISTENCE</div>
+                <div class="progress-bar">
+                    <div class="bar-fill" id="level4-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="camMap">
+        <!-- Synlig rulle i venstre side -->
+        <div class="map-roll">
+            <div class="map-handle"></div>
+        </div>
+
+        <!-- Kortcontainer med begge kort -->
+        <div class="map-sheets">
+            <!-- Første kort: Kamerapositioner -->
+            <div id="positionsMap" class="map-sheet">
+                <div class="map-header">
+                    <h2>NAVIGATION CHART</h2>
+                    <div class="map-close">×</div>
+                </div>
+                <div class="map-content">
+                    <!-- Kompas -->
+                    <div class="map-compass"></div>
+
+                    <!-- Kamerapositioner -->
+                    <div class="map-positions">
+                        <div class="map-position" data-position="main">
+                            <div class="position-name">Captain's Patch</div>
+                            <div class="position-coords">x:0, y:-673, z:373</div>
+                        </div>
+
+                        <div class="map-position" data-position="overhead">
+                            <div class="position-name">Eagle Rock</div>
+                            <div class="position-coords">x:0, y:0, z:800</div>
+                        </div>
+
+                        <div class="map-position" data-position="cinematic">
+                            <div class="position-name">Pirate Cove</div>
+                            <div class="position-coords">x:-200, y:-200, z:120</div>
+                        </div>
+
+                        <div class="map-position" data-position="closeup">
+                            <div class="position-name">Glass Eye</div>
+                            <div class="position-coords">x:0, y:-200, z:100</div>
+                        </div>
+
+                        <div class="map-position" data-position="matrix">
+                            <div class="position-name">Matrix Island</div>
+                            <div class="position-coords">x:-400, y:-800, z:100</div>
+                        </div>
+                    </div>
+
+                    <!-- Map controls -->
+                    <div class="map-controls">
+                        <div class="map-button" id="showControlsBtn">VIEW CONTROL CODEX</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Andet kort: Kontroller -->
+            <div id="controlsMap" class="map-sheet hidden">
+                <div class="map-header">
+                    <h2>CONTROL CODEX</h2>
+                    <div class="map-close">×</div>
+                </div>
+                <div class="map-content">
+                    <div class="control-list">
+                        <!-- Venstre kolonne -->
+                        <div class="control-item">
+                            <span class="key-combo">Q/A</span>
+                            <span class="key-action">Adjust FOV</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key-combo">W/S</span>
+                            <span class="key-action">Adjust X Position</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key-combo">E/D</span>
+                            <span class="key-action">Adjust Y Position</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key-combo">R/F</span>
+                            <span class="key-action">Adjust Z Position</span>
+                        </div>
+
+                        <!-- Højre kolonne -->
+                        <div class="control-item">
+                            <span class="key-combo">T/G</span>
+                            <span class="key-action">Adjust Look-at-Y</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key-combo">Z/X</span>
+                            <span class="key-action">Adjust Movement Speed</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key-combo">P</span>
+                            <span class="key-action">Toggle Ortho/Perspective</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key-combo">M</span>
+                            <span class="key-action">Toggle Camera Map</span>
+                        </div>
+                    </div>
+
+                    <!-- Back button -->
+                    <div class="map-controls">
+                        <div class="map-button" id="showPositionsBtn">RETURN TO NAVIGATION</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <div id="gameOver">
+        <h1 id="gameOverTitle">GAME OVER</h1>
+        <h2 id="finalScore"></h2>
+        <p id="damageText"></p>
+        <button class="restart-btn" onclick="restartGame()">Restart [N]</button>
+    </div>
+   
+    <div id="levelComplete">
+        <h1 id="levelCompleteTitle"></h1>
+        <h2 id="levelScore"></h2>
+        <div id="completedActions"></div>
+        <button class="restart-btn" onclick="nextLevel()">Continue [SPACE]</button>
+    </div>
+   
+    <div class="scanline"></div>
+   
+    <!-- Libraries -->
+    <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/gsap.min.js"></script>
+   
+    <!-- Game scripts -->
+    <script src="constants.js"></script>
+    <script src="effects.js"></script>
+    <script src="virus.js"></script>
+    <script src="obstacle.js"></script>
+    <script src="levels.js"></script>
+    <script src="progress-manager.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

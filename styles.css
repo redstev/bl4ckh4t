@@ -1,0 +1,1141 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #000;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+}
+
+canvas {
+    display: block;
+}
+
+#info {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    text-align: center;
+    color: #ff00ff;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ffff;
+    pointer-events: none;
+}
+
+#gameOver, #levelComplete {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 10;
+    display: none;
+}
+
+#gameOver h1, #levelComplete h1 {
+    color: #ff00ff;
+    font-size: 48px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #00ffff;
+}
+
+#gameOver h2, #levelComplete h2 {
+    color: #00ffff;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+#gameOver p, #levelComplete p {
+    color: #fff;
+    font-size: 18px;
+    margin-top: 5px;
+}
+
+#completedActions {
+    margin: 20px 0;
+}
+
+.subheadline {
+    color: #00ff00;
+    font-size: 20px;
+    margin: 5px 0;
+}
+
+.restart-btn {
+    margin-top: 30px;
+    padding: 10px 20px;
+    background-color: #ff00ff;
+    color: #000;
+    border: none;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.restart-btn:hover {
+    background-color: #00ffff;
+}
+
+.scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+    background-size: 100% 4px;
+    z-index: 9;
+    pointer-events: none;
+    opacity: 0.15;
+}
+
+#instructions {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: #00ffff;
+    font-size: 14px;
+    text-shadow: 0 0 3px #ff00ff;
+    pointer-events: none;
+}
+
+/* Camera Map Styling */
+#camMap {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 8;
+}
+
+/* Map Roll Styling - Virus-inspireret design */
+.map-roll {
+    position: absolute;
+    width: 35px;
+    height: 120px;
+    left: -28px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    transition: left 0.3s ease-out;
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 9;
+    border-radius: 0 8px 8px 0;
+
+    /* Virus-tech effekt */
+    box-shadow:
+        0 0 10px rgba(255, 0, 255, 0.7),
+        inset 0 0 8px rgba(0, 255, 255, 0.6);
+    border: 1px solid #00ffff;
+    border-left: none;
+    overflow: hidden;
+}
+
+.map-roll:hover {
+    left: -20px;
+}
+
+.map-roll.active {
+    left: 0;
+}
+
+.map-roll::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        /* Pulserende energi-linjer */
+        radial-gradient(
+            circle at 50% 30%,
+            rgba(255, 0, 255, 0.5) 0%,
+            transparent 20%
+        ),
+        radial-gradient(
+            circle at 50% 70%,
+            rgba(0, 255, 255, 0.5) 0%,
+            transparent 20%
+        ),
+        /* Tech-circuit mønster */
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="35" height="120" viewBox="0 0 35 120"><path d="M10,10 L25,10 M10,20 L25,20 M10,30 L18,30 M22,30 L25,30 M10,50 L25,50 M10,60 L25,60 M10,70 L18,70 M22,70 L25,70 M10,90 L25,90 M10,100 L25,100 M10,110 L18,110 M22,110 L25,110 M5,20 L5,40 M5,60 L5,80 M5,100 L5,115 M30,5 L30,15 M30,45 L30,55 M30,85 L30,95" stroke="%2300ffff" stroke-width="0.8" fill="none" opacity="0.6"/></svg>');
+    opacity: 0.6;
+    animation: pulse 3s infinite alternate;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.3; }
+}
+
+.map-handle {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 255, 255, 0.7);
+    box-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+    border-radius: 3px;
+}
+
+.map-handle::before, .map-handle::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 2px;
+    background-color: #00ffff;
+    left: 5px;
+}
+
+.map-handle::before {
+    top: 20px;
+}
+
+.map-handle::after {
+    bottom: 20px;
+}
+
+/* Map Sheets Styling */
+.map-sheets {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: left 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.map-sheets.active {
+    left: 0;
+    pointer-events: auto;
+}
+
+.map-sheet {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    height: 80%;
+    max-height: 600px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 2px solid #ff00ff;
+    box-shadow: 0 0 20px #ff00ff, inset 0 0 10px #ff00ff;
+    color: #00ffff;
+    overflow: hidden;
+    pointer-events: auto;
+    transition: opacity 0.5s, transform 0.5s;
+    animation: mapUnfold 0.8s ease-out;
+    position: relative;
+
+    /* Holografisk baggrunds-effekt */
+    background-image:
+        linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><defs><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter></defs><path d="M0,40 h40 v40 h40 v-60 h20 v100 h40 v-20 h20 v-40 h40 M20,0 v40 h60 v60 h40 v100 M60,80 h40 M100,20 v60 M140,60 v40 M60,120 h80 M100,120 v80 M180,80 v80 h-40" stroke="%2300ffff" stroke-width="1" fill="none" opacity="0.2" filter="url(%23glow)" /></svg>');
+}
+
+/* Holografiske linjer der bevæger sig hen over kortet */
+.map-sheet::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 255, 0.03) 2px,
+        rgba(0, 255, 255, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Glødende kant-effekt der roterer - kun på Navigation Chart */
+#positionsMap.map-sheet::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        45deg,
+        transparent 0%,
+        transparent 40%,
+        rgba(255, 0, 255, 0.1) 45%,
+        rgba(0, 255, 255, 0.1) 50%,
+        rgba(255, 0, 255, 0.1) 55%,
+        transparent 60%,
+        transparent 100%
+    );
+    pointer-events: none;
+    z-index: 4;
+    opacity: 0.5;
+    animation: rotateGradient 12s linear infinite;
+}
+
+@keyframes rotateGradient {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes mapUnfold {
+    0% { transform: translate(-50%, -50%) scaleX(0.01); opacity: 0; }
+    30% { transform: translate(-50%, -50%) scaleX(1.05); opacity: 0.7; }
+    50% { transform: translate(-50%, -50%) scaleX(0.98); opacity: 0.9; }
+    70% { transform: translate(-50%, -50%) scaleX(1.02); }
+    85% { transform: translate(-50%, -50%) scaleX(0.99); }
+    100% { transform: translate(-50%, -50%) scaleX(1); opacity: 1; }
+}
+
+/* Animation for kameraposition paths */
+@keyframes pathDraw {
+    0% { width: 0; }
+    100% { width: 100%; }
+}
+
+.map-sheet.hidden {
+    display: none;
+}
+
+/* Map Header */
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid #ff00ff;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40"><path d="M0,20 H160 M80,0 V40" stroke="%23ff00ff" stroke-width="0.5" opacity="0.3" stroke-dasharray="1,5"/></svg>');
+    pointer-events: none;
+}
+
+/* Specifik styling for Navigation Chart header med bølger */
+#positionsMap .map-header::before {
+    background-image:
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40"><path d="M0,10 Q10,5 20,10 Q30,15 40,10 Q50,5 60,10 Q70,15 80,10 Q90,5 100,10 Q110,15 120,10 Q130,5 140,10 Q150,15 160,10 M0,30 Q10,25 20,30 Q30,35 40,30 Q50,25 60,30 Q70,35 80,30 Q90,25 100,30 Q110,35 120,30 Q130,25 140,30 Q150,35 160,30" stroke="%230088cc" stroke-width="0.8" fill="none" opacity="0.4"/></svg>');
+}
+
+/* Special styling for Control Codex header */
+#controlsMap .map-header {
+    background-image:
+        linear-gradient(90deg,
+            rgba(60, 0, 60, 0.4) 0%,
+            rgba(0, 60, 60, 0.4) 50%,
+            rgba(60, 0, 60, 0.4) 100%);
+    border-bottom: none;
+    padding: 15px 20px;
+}
+
+#controlsMap .map-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40"><path d="M0,20 H160 M10,10 H150 M10,30 H150 M40,0 V40 M80,0 V40 M120,0 V40" stroke="%2300ffff" stroke-width="0.5" opacity="0.2" stroke-dasharray="2,4"/></svg>');
+    pointer-events: none;
+    /* Animation fjernet */
+}
+
+#controlsMap .map-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right,
+        transparent,
+        rgba(255, 0, 255, 0.8) 10%,
+        rgba(0, 255, 255, 0.8) 50%,
+        rgba(255, 0, 255, 0.8) 90%,
+        transparent);
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+}
+
+#controlsMap .map-header h2 {
+    position: relative;
+    display: inline-block;
+    padding: 0 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border-left: 2px solid rgba(255, 0, 255, 0.6);
+    border-right: 2px solid rgba(0, 255, 255, 0.6);
+}
+
+#controlsMap .map-header h2::before,
+#controlsMap .map-header h2::after {
+    display: none;
+}
+
+@keyframes headerScan {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+.map-header h2 {
+    margin: 0;
+    color: #ff00ff;
+    font-size: 20px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px #ff00ff;
+    position: relative;
+    padding: 0 10px;
+}
+
+.map-header h2::before, .map-header h2::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 15px;
+    height: 2px;
+    background-color: #ff00ff;
+    transform: translateY(-50%);
+}
+
+.map-header h2::before {
+    left: -10px;
+}
+
+.map-header h2::after {
+    right: -10px;
+}
+
+.map-close {
+    font-size: 24px;
+    cursor: pointer;
+    color: #00ffff;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #00ffff;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.map-close:hover {
+    color: #ff00ff;
+    background-color: rgba(0, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* Map Content */
+.map-content {
+    padding: 20px;
+    height: calc(100% - 50px);
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Scanline effect kun for controlsMap */
+#controlsMap .map-content {
+    position: relative;
+}
+
+#controlsMap .map-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 255, 0.03) 2px,
+        rgba(0, 255, 255, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+}
+
+#controlsMap .map-content::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 0, 255, 0.1) 25%,
+        rgba(0, 255, 255, 0.1) 50%,
+        rgba(255, 0, 255, 0.1) 75%,
+        transparent 100%
+    );
+    pointer-events: none;
+    opacity: 0.3;
+    z-index: 9;
+    animation: scanGradient 8s ease-in-out infinite;
+}
+
+@keyframes scanGradient {
+    0% { background-position: -100% 0; }
+    50% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+/* Compass */
+.map-compass {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="38" fill="none" stroke="%2300ffff" stroke-width="1" /><circle cx="40" cy="40" r="30" fill="none" stroke="%2300ffff" stroke-width="0.5" /><circle cx="40" cy="40" r="3" fill="%23ff00ff" /><path d="M40,10 L40,5 M40,70 L40,75 M10,40 L5,40 M70,40 L75,40" stroke="%2300ffff" stroke-width="1" /><text x="40" y="8" fill="%23ff00ff" text-anchor="middle" font-size="8">N</text><text x="73" y="42" fill="%2300ffff" text-anchor="middle" font-size="8">E</text><text x="40" y="77" fill="%2300ffff" text-anchor="middle" font-size="8">S</text><text x="7" y="42" fill="%2300ffff" text-anchor="middle" font-size="8">W</text></svg>');
+    opacity: 0.8;
+    transition: transform 1s;
+    animation: compassSpin 2s ease-out;
+}
+
+@keyframes compassSpin {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.map-compass:hover {
+    transform: rotate(45deg);
+}
+
+/* Camera Positions as a Map */
+.map-positions {
+    position: relative;
+    padding: 20px;
+    margin: 0 auto;
+    margin-top: 20px;
+    width: 90%;
+    height: 70%;
+    background-image:
+        /* Havbølger baggrund */
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0,25 Q10,20 20,25 Q30,30 40,25 Q50,20 60,25 Q70,30 80,25 Q90,20 100,25 M0,50 Q10,45 20,50 Q30,55 40,50 Q50,45 60,50 Q70,55 80,50 Q90,45 100,50 M0,75 Q10,70 20,75 Q30,80 40,75 Q50,70 60,75 Q70,80 80,75 Q90,70 100,75" stroke="%230088cc" stroke-width="0.5" fill="none" opacity="0.3"/></svg>'),
+        /* Grid linjer */
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M20,0 V100 M40,0 V100 M60,0 V100 M80,0 V100 M0,20 H100 M0,40 H100 M0,60 H100 M0,80 H100" stroke="%23ff00ff" stroke-width="0.3" stroke-dasharray="1,3" opacity="0.2"/></svg>');
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Kompas linje der går over kortet */
+.map-positions::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 100%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 255, 0.5) 20%, rgba(255, 0, 255, 0.5) 80%, transparent);
+    z-index: 1;
+}
+.map-positions::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(0, 255, 255, 0.5) 20%, rgba(0, 255, 255, 0.5) 80%, transparent);
+    z-index: 1;
+}
+
+/* Positioner som organiske "øer" på kortet */
+.map-position {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    /* Fjerner rund form til fordel for irregulær ø-form */
+    border: none;
+    border-radius: 0;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.4));
+    overflow: visible;
+}
+
+/* Ø-former med clip-path - en unik form for hver position */
+.map-position[data-position="main"] {
+    clip-path: polygon(
+        30% 0%, 70% 0%, 90% 20%, 100% 50%, 90% 80%,
+        70% 100%, 40% 95%, 20% 100%, 0% 70%, 10% 40%
+    );
+}
+
+.map-position[data-position="overhead"] {
+    clip-path: polygon(
+        20% 0%, 60% 10%, 90% 0%, 100% 30%, 95% 60%,
+        100% 90%, 70% 100%, 30% 90%, 0% 70%, 10% 30%
+    );
+}
+
+.map-position[data-position="cinematic"] {
+    clip-path: polygon(
+        40% 0%, 80% 10%, 100% 40%, 90% 70%, 100% 90%,
+        70% 100%, 40% 90%, 10% 100%, 0% 70%, 10% 30%
+    );
+}
+
+.map-position[data-position="closeup"] {
+    clip-path: polygon(
+        30% 0%, 60% 10%, 90% 30%, 100% 60%, 80% 90%,
+        50% 100%, 20% 80%, 0% 60%, 10% 40%, 20% 10%
+    );
+}
+
+.map-position[data-position="matrix"] {
+    clip-path: polygon(
+        50% 0%, 80% 20%, 100% 40%, 90% 80%, 60% 100%,
+        30% 90%, 10% 100%, 0% 60%, 20% 20%, 30% 10%
+    );
+}
+
+/* Indre topografiske detaljer med pseudo-elementer */
+.map-position::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        /* Topografiske højdekurver */
+        radial-gradient(
+            ellipse at center,
+            rgba(0, 255, 255, 0.5) 0%,
+            rgba(0, 255, 255, 0.4) 20%,
+            rgba(0, 255, 255, 0.3) 30%,
+            rgba(0, 255, 255, 0.2) 40%,
+            rgba(0, 255, 255, 0.1) 60%,
+            transparent 80%
+        );
+    opacity: 0.3;
+    z-index: -1;
+}
+
+/* Border effekt med gradient der simulerer kystlinje */
+.map-position::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: none;
+    border: 2px solid #00ffff;
+    opacity: 0.7;
+    z-index: -1;
+    /* Samme clip-path som forælderelementet men lidt større */
+    clip-path: inherit;
+    filter: blur(1px);
+}
+
+/* Tilføj små "bjerge" eller topografiske punkter */
+.map-position .topo-detail {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: rgba(255, 0, 255, 0.4);
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(255, 0, 255, 0.6);
+    z-index: -1;
+}
+
+.map-position .topo-detail:nth-child(1) {
+    top: 25%;
+    left: 30%;
+}
+
+.map-position .topo-detail:nth-child(2) {
+    top: 40%;
+    left: 60%;
+}
+
+.map-position .topo-detail:nth-child(3) {
+    top: 65%;
+    left: 40%;
+}
+
+/* Kartografiske detaljer specific for hver ø */
+.map-position[data-position="main"]::before {
+    background-image:
+        radial-gradient(
+            ellipse at 60% 40%,
+            rgba(0, 255, 255, 0.6) 0%,
+            rgba(0, 255, 255, 0.4) 30%,
+            rgba(0, 255, 255, 0.2) 50%,
+            transparent 80%
+        );
+}
+
+.map-position[data-position="overhead"]::before {
+    background-image:
+        radial-gradient(
+            circle at 40% 50%,
+            rgba(0, 255, 255, 0.4) 0%,
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 70% 30%,
+            rgba(255, 0, 255, 0.4) 0%,
+            transparent 50%
+        );
+}
+
+.map-position[data-position="cinematic"]::before {
+    background-image:
+        radial-gradient(
+            ellipse at 30% 70%,
+            rgba(255, 0, 255, 0.4) 0%,
+            transparent 50%
+        ),
+        linear-gradient(
+            45deg,
+            transparent 40%,
+            rgba(0, 255, 255, 0.2) 50%,
+            transparent 60%
+        );
+}
+
+/* Placering af øerne på kortet - strategisk placeret */
+.map-position[data-position="main"] {
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.map-position[data-position="overhead"] {
+    top: 10%;
+    left: 70%;
+    transform: translate(-50%, -50%);
+}
+
+.map-position[data-position="cinematic"] {
+    top: 60%;
+    left: 30%;
+    transform: translate(-50%, -50%);
+}
+
+.map-position[data-position="closeup"] {
+    top: 70%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+}
+
+.map-position[data-position="matrix"] {
+    top: 35%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+}
+
+/* Sti-linjer mellem øerne */
+.map-positions .path-line {
+    position: absolute;
+    background: linear-gradient(to right, #ff00ff, #00ffff);
+    height: 2px;
+    opacity: 0.4;
+    z-index: 1;
+}
+
+/* Glød-effekt ved hover */
+.map-position:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
+    border-color: #ff00ff;
+    z-index: 3;
+}
+
+/* Pirat-tema ø-markører */
+.map-position::before {
+    content: 'X';
+    position: absolute;
+    top: 25%;
+    left: 35%;
+    font-size: 22px;
+    font-weight: bold;
+    color: rgba(255, 0, 255, 0.7);
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.8);
+    z-index: 1;
+    font-family: 'Courier New', monospace;
+    transform: rotate(-15deg);
+}
+
+/* Forskellige markeringer for forskellige øer */
+.map-position[data-position="main"]::before {
+    content: 'X';
+    font-size: 24px;
+    color: rgba(255, 0, 255, 0.8);
+}
+
+.map-position[data-position="overhead"]::before {
+    content: '⚓';
+    top: 20%;
+    left: 38%;
+    font-size: 18px;
+    color: rgba(0, 255, 255, 0.8);
+}
+
+.map-position[data-position="cinematic"]::before {
+    content: '✧';
+    font-size: 26px;
+    top: 15%;
+    left: 40%;
+    color: rgba(255, 0, 255, 0.7);
+}
+
+.map-position[data-position="closeup"]::before {
+    content: '⚔';
+    font-size: 16px;
+    top: 22%;
+    left: 36%;
+    color: rgba(0, 255, 255, 0.8);
+}
+
+.map-position[data-position="matrix"]::before {
+    content: '☠';
+    font-size: 20px;
+    top: 18%;
+    left: 40%;
+    color: rgba(255, 0, 255, 0.8);
+}
+
+.position-name {
+    text-align: center;
+    color: #ff00ff;
+    font-weight: bold;
+    font-size: 12px;
+    margin-top: 18px;
+    margin-bottom: 3px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    position: relative;
+}
+
+.position-name::before {
+    content: '';
+    position: absolute;
+    left: -15px;
+    top: 50%;
+    width: 10px;
+    height: 1px;
+    background-color: rgba(0, 255, 255, 0.7);
+}
+
+.position-name::after {
+    content: '';
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    width: 10px;
+    height: 1px;
+    background-color: rgba(0, 255, 255, 0.7);
+}
+
+.position-coords {
+    display: none;
+}
+
+/* Control List */
+.control-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* 2 kolonner i stedet for 4 */
+    grid-template-rows: repeat(4, auto);    /* 4 rækker i stedet for 2 */
+    gap: 15px;
+    margin: 20px 40px 70px 40px; /* Bevar 70px margin i bunden */
+    position: relative;
+}
+
+/* Data stream animation */
+.control-list::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background-image:
+        linear-gradient(90deg, transparent 40%, rgba(0, 255, 255, 0.2) 45%, rgba(0, 255, 255, 0.2) 55%, transparent 60%),
+        linear-gradient(90deg, transparent 65%, rgba(255, 0, 255, 0.2) 70%, rgba(255, 0, 255, 0.2) 80%, transparent 85%);
+    opacity: 0;
+    z-index: 5;
+    animation: dataStream 6s ease-in-out infinite;
+}
+
+@keyframes dataStream {
+    0% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+    20% {
+        opacity: 0.5;
+    }
+    80% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    background-color: rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+    margin-bottom: 5px;  /* Mindre margin */
+    position: relative;
+    backdrop-filter: blur(2px);
+    overflow: visible;    /* Ændret fra hidden til visible */
+    height: 40px;        /* Fast højde */
+}
+
+.control-item:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right,
+        transparent,
+        rgba(0, 255, 255, 0.8) 20%,
+        rgba(255, 0, 255, 0.8) 50%,
+        rgba(0, 255, 255, 0.8) 80%,
+        transparent);
+    opacity: 0.3;
+    transition: opacity 0.3s;
+}
+
+.control-item:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><line x1="0" y1="0" x2="100" y2="100" stroke="%2300ffff" stroke-width="0.3" opacity="0.1" /><line x1="0" y1="100" x2="100" y2="0" stroke="%23ff00ff" stroke-width="0.3" opacity="0.1" /></svg>');
+    opacity: 0.05;
+    pointer-events: none;
+}
+
+/* Fjernet hover effekt på kontrolelementer */
+
+.key-combo {
+    background-color: rgba(255, 0, 255, 0.3);
+    color: #fff;
+    padding: 5px 10px;
+    min-width: 50px;     /* Lidt bredere */
+    text-align: center;
+    position: relative;
+    border: none;
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+    clip-path: polygon(
+        0 5px, 5px 0, calc(100% - 5px) 0, 100% 5px,
+        100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px)
+    );
+    flex-shrink: 0;     /* Forhindrer krympning */
+    font-weight: bold;  /* Fed skrift */
+}
+
+.key-combo:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 0, 255, 0.6), rgba(0, 255, 255, 0.6));
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.key-combo:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background-color: rgba(20, 0, 20, 0.8);
+    z-index: -1;
+    clip-path: polygon(
+        0 4px, 4px 0, calc(100% - 4px) 0, 100% 4px,
+        100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px)
+    );
+}
+
+.key-action {
+    flex: 1;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    letter-spacing: 0.5px;
+    white-space: nowrap;     /* Ingen tekstombrydning */
+    overflow: visible;       /* Lad teksten flyde ud */
+    font-size: 14px;         /* Lidt mindre skrift */
+}
+
+/* Corner dots for key-combo */
+.key-combo:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image:
+        radial-gradient(circle at 4px 4px, rgba(255, 0, 255, 0.9) 0, rgba(255, 0, 255, 0.9) 2px, transparent 2px),
+        radial-gradient(circle at calc(100% - 4px) 4px, rgba(0, 255, 255, 0.9) 0, rgba(0, 255, 255, 0.9) 2px, transparent 2px),
+        radial-gradient(circle at 4px calc(100% - 4px), rgba(0, 255, 255, 0.9) 0, rgba(0, 255, 255, 0.9) 2px, transparent 2px),
+        radial-gradient(circle at calc(100% - 4px) calc(100% - 4px), rgba(255, 0, 255, 0.9) 0, rgba(255, 0, 255, 0.9) 2px, transparent 2px);
+    pointer-events: none;
+}
+
+/* Map Controls - konsistent placering på begge kort */
+.map-controls {
+    position: absolute;
+    bottom: 55px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 10;
+}
+
+.map-button {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: rgba(60, 0, 60, 0.4);
+    color: #00ffff;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 0 auto;
+    position: relative;
+    border: none;
+    clip-path: polygon(
+        0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px,
+        100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px)
+    );
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.8);
+}
+
+.map-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(135deg, rgba(255, 0, 255, 0.8) 0%, rgba(0, 255, 255, 0.8) 100%);
+    opacity: 0.2;
+    z-index: -1;
+    transition: opacity 0.3s;
+}
+
+.map-button::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background-color: rgba(20, 0, 20, 0.8);
+    z-index: -1;
+    clip-path: polygon(
+        0 8px, 8px 0, calc(100% - 8px) 0, 100% 8px,
+        100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px)
+    );
+}
+
+/* Glowing corner dots */
+.map-button:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image:
+        radial-gradient(circle at 6px 6px, rgba(255, 0, 255, 0.9) 0, rgba(255, 0, 255, 0.9) 3px, transparent 3px),
+        radial-gradient(circle at calc(100% - 6px) 6px, rgba(0, 255, 255, 0.9) 0, rgba(0, 255, 255, 0.9) 3px, transparent 3px),
+        radial-gradient(circle at 6px calc(100% - 6px), rgba(0, 255, 255, 0.9) 0, rgba(0, 255, 255, 0.9) 3px, transparent 3px),
+        radial-gradient(circle at calc(100% - 6px) calc(100% - 6px), rgba(255, 0, 255, 0.9) 0, rgba(255, 0, 255, 0.9) 3px, transparent 3px);
+    pointer-events: none;
+}
+
+.map-button:hover {
+    background-color: rgba(0, 60, 60, 0.5);
+    color: #ff00ff;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(255, 0, 255, 0.5),
+        inset 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.map-button:hover::before {
+    opacity: 0.4;
+}
+
+/* Special styling for Control Codex buttons */
+#controlsMap .map-button {
+    background-color: rgba(0, 40, 40, 0.5);
+}
+
+#controlsMap .map-button:hover {
+    background-color: rgba(40, 0, 40, 0.5);
+}
+
+/* Specifik justering af Control Codex knap-position - HØJERE op */
+#controlsMap .map-controls {
+    bottom: 63px; /* Højere værdi = højere position */
+}
+
+
