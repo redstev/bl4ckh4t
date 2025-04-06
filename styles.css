@@ -1,9 +1,15 @@
-body {
+html, body {
     margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
     background-color: #000;
     font-family: 'Courier New', monospace;
     color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
 canvas {
@@ -1137,5 +1143,7 @@ canvas {
 #controlsMap .map-controls {
     bottom: 63px; /* Højere værdi = højere position */
 }
+
+
 
 
